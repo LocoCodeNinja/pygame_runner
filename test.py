@@ -8,6 +8,7 @@ SCREEN_WIDTH = 1200
 
 # Initialize game state variables
 game_active = True
+player_score = 0
 scroll_sky = 0
 scroll_ground = 0
 snail_y = 310
@@ -16,6 +17,8 @@ snail2_speed = 2
 moving_left = False
 moving_right = False
 is_midair = False
+scored_snail1 = False
+scored_snail2 = False
 
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -25,7 +28,7 @@ test_font = pygame.font.Font(font_path, 50)
 
 sky_surface = pygame.image.load(image_path + 'sky.png').convert()
 ground_surface = pygame.image.load(image_path + 'ground.png').convert()
-score_surf = test_font.render('HELLO BIG BOYS', False, 'White')
+score_surf = test_font.render(str(player_score), False, 'White')
 end_surf = test_font.render('Game Over', False, 'White')
 end_continue_surf = test_font.render('Press SPACE to continue', False, 'White')
 end_exit_surf = test_font.render('Press ESCAPE to exit', False, 'White')
@@ -47,8 +50,9 @@ tiles = math.ceil(SCREEN_WIDTH / sky_width) + 1
 
 def reset_game():
     # Reset game state variables
-    global game_active, scroll_sky, scroll_ground, snail1_speed, snail2_speed, moving_left, moving_right, is_midair
+    global game_active, player_score, scroll_sky, scroll_ground, snail1_speed, snail2_speed, moving_left, moving_right, is_midair, player_gravity, scored_snail1, scored_snail2
     game_active = True
+    player_score = 0
     scroll_sky = 0
     scroll_ground = 0
     snail1_speed = 3
@@ -56,6 +60,8 @@ def reset_game():
     moving_left = False
     moving_right = False
     is_midair = False
+    scored_snail1 = False
+    scored_snail2 = False
     # Reset player position
     player_rect.midbottom = (50, 310)
     player_gravity = 0
@@ -71,8 +77,8 @@ while True:
 
         # Jump if spacekey down
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE and not is_midair:
-                player_gravity = -20
+            if event.key == pygame.K_SPACE and not is_midair and game_active:
+                player_gravity = -18
                 is_midair = True
 
             # Check for game restart
@@ -120,9 +126,37 @@ while True:
         if abs(scroll_ground) > ground_width:
             scroll_ground = 0
 
+        # Fill the background of the score area
+        score_background = pygame.Surface((score_rect.width, score_rect.height))
+        score_background.fill((0, 0, 0))  # Fill with black color
+        screen.blit(score_background, score_rect)
+
+        # Update score surface and rectangle
+        player_score_surf = test_font.render(str(player_score), False, 'White')
+        score_rect = player_score_surf.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 50))
+
+        # Render the updated score
+        screen.blit(player_score_surf, score_rect)
+
         # Draw snails
         screen.blit(snail1_surface, snail1_rect)
         screen.blit(snail2_surface, snail2_rect)
+
+        #moves the rect
+        snail1_rect.x -= snail1_speed
+        snail2_rect.x -= snail2_speed
+
+        if snail1_rect.right <= 0:
+            snail1_rect.left = SCREEN_WIDTH
+            snail1_speed = random.randint(3, 8)
+            player_score += 1
+            score_surf = test_font.render(str(player_score), False, 'White')
+
+        if snail2_rect.right <= 0:
+            snail2_rect.left = SCREEN_WIDTH
+            snail2_speed = random.randint(3, 8)
+            player_score += 1
+            score_surf = test_font.render(str(player_score), False, 'White')
 
         # Draw player
         player_gravity += 1
@@ -131,9 +165,6 @@ while True:
             player_rect.bottom = 310
         screen.blit(player_surface, player_rect)
 
-        # Draw text
-        screen.blit(score_surf, score_rect)
-
         # Move snails
         snail1_rect.x -= snail1_speed
         snail2_rect.x -= snail2_speed
@@ -141,6 +172,7 @@ while True:
         # Check if snails collide with the player
         if snail1_rect.colliderect(player_rect) or snail2_rect.colliderect(player_rect):
             game_active = False
+
     else:
         # Display game over screen
         screen.fill('Black')
