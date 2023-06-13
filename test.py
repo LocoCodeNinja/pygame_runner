@@ -28,7 +28,7 @@ test_font = pygame.font.Font(font_path, 50)
 
 sky_surface = pygame.image.load(image_path + 'sky.png').convert()
 ground_surface = pygame.image.load(image_path + 'ground.png').convert()
-score_surf = test_font.render(str(player_score), False, 'White')
+score_surf = test_font.render("SCORE: " + str(player_score), False, 'White')
 end_surf = test_font.render('Game Over', False, 'White')
 end_continue_surf = test_font.render('Press SPACE to continue', False, 'White')
 end_exit_surf = test_font.render('Press ESCAPE to exit', False, 'White')
@@ -132,7 +132,7 @@ while True:
         screen.blit(score_background, score_rect)
 
         # Update score surface and rectangle
-        player_score_surf = test_font.render(str(player_score), False, 'White')
+        player_score_surf = test_font.render('SCORE:    ' + str(player_score), False, 'White')
         score_rect = player_score_surf.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 50))
 
         # Render the updated score
@@ -150,13 +150,13 @@ while True:
             snail1_rect.left = SCREEN_WIDTH
             snail1_speed = random.randint(3, 8)
             player_score += 1
-            score_surf = test_font.render(str(player_score), False, 'White')
+            score_surf = test_font.render('SCORE:    ' + str(player_score), False, 'White')
 
         if snail2_rect.right <= 0:
             snail2_rect.left = SCREEN_WIDTH
             snail2_speed = random.randint(3, 8)
             player_score += 1
-            score_surf = test_font.render(str(player_score), False, 'White')
+            score_surf = test_font.render('SCORE:    ' + str(player_score), False, 'White')
 
         # Draw player
         player_gravity += 1
